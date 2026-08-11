@@ -1,0 +1,12 @@
+Codify is the mobile companion for your Codify server: an open-source workspace for supervising AI agents across coding, research, automation, and other technical workflows.
+
+Connect to a server you run, sign in, and continue the same sessions you use from desktop or browser. Follow agent work from your phone, send messages, review outputs, and switch between sessions without losing context.
+
+Use Codify to:
+
+- Keep agent chats, sub-agents, terminals, and files in sync across devices
+- Supervise multiple agents from one interface
+- Work with custom YAML agents and shared team sessions
+- Reach self-hosted or cloud-hosted Codify deployments
+
+This app is a native iOS shell for the Codify web UI. You need access to an Codify server to use it. For local or private deployments, configure your server URL on the first screen and connect securely.

@@ -1,0 +1,4 @@
+command: ["uv", "run", "python", "app.py"]
+env:
+  - name: CODIFY_SLACK_SERVER_AUTH
+    value: databricks

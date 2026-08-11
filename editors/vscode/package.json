@@ -1,0 +1,89 @@
+{
+  "name": "codify-vscode",
+  "displayName": "Codify",
+  "description": "Open your running local Codify server inside VS Code, in an editor-beside iframe.",
+  "version": "0.1.0",
+  "publisher": "databricks",
+  "license": "Apache-2.0",
+  "icon": "media/codify-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codify-ai/codify.git",
+    "directory": "editors/vscode"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "configuration": {
+      "title": "Codify",
+      "properties": {
+        "codify.serverUrl": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Manual Codify server URL override for a **localhost** server (e.g. `http://127.0.0.1:6767`). Leave empty to auto-discover a locally running Codify server. Non-localhost URLs are not supported in this build."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codify-container",
+          "title": "Codify",
+          "icon": "media/codify-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "codify-container": [
+        {
+          "type": "tree",
+          "id": "codify.home",
+          "name": "Codify"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "codify.home",
+        "contents": "Open the running Codify server UI in an editor tab.\n[Open Codify](command:codify.open)\nStart a local server with `codify server`, or set `codify.serverUrl` to a localhost URL."
+      }
+    ],
+    "commands": [
+      {
+        "command": "codify.open",
+        "title": "Codify: Open",
+        "icon": "media/codify-icon.svg"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "codify.open",
+          "group": "navigation@99"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "codify.open"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.74.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.4.5",
+    "vitest": "^3.2.6"
+  }
+}

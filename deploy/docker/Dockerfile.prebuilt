@@ -1,0 +1,7 @@
+# Pulls the CI-built server image instead of building from source — the web UI
+# bundle is gitignored, so a plain `docker build` would fail. For platforms that
+# only run `docker build` (Railway, HF Spaces). Override the tag via
+# --build-arg CODIFY_IMAGE=ghcr.io/codify-ai/codify-server:vX.Y.Z.
+
+ARG CODIFY_IMAGE=ghcr.io/codify-ai/codify-server:latest
+FROM ${CODIFY_IMAGE}

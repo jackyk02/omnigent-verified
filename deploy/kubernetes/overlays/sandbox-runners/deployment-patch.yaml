@@ -1,0 +1,31 @@
+---
+# Patch the base server Deployment so the kubernetes sandbox provider works:
+#   1. Run as the `codify-server` ServiceAccount (bound by rolebinding.yaml to
+#      the pods + secrets Role in role.yaml) so the launcher can manage runner
+#      Pods and their per-launch token Secrets.
+#   2. Mount the sandbox config.yaml and point CODIFY_CONFIG at it so the
+#      server parses the `sandbox: provider: kubernetes` section.
+#
+# NOTE: the server image must include the `kubernetes` extra
+# (`pip install 'codify[kubernetes]'`) for the provider to import the client.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codify
+spec:
+  template:
+    spec:
+      serviceAccountName: codify-server
+      containers:
+        - name: codify
+          env:
+            - name: CODIFY_CONFIG
+              value: /etc/codify/config.yaml
+          volumeMounts:
+            - name: sandbox-config
+              mountPath: /etc/codify
+              readOnly: true
+      volumes:
+        - name: sandbox-config
+          configMap:
+            name: codify-sandbox-config

@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# On-demand runner-Pod sandbox provider, layered on the base server deploy.
+# Two-namespace split (server in `codify`, runners in `codify-sandboxes`) — see
+# README.md. No overlay-wide `namespace:`; each resource sets its own explicitly.
+
+resources:
+  - ../../base
+  - serviceaccount-server.yaml # SA in codify (server runs as this)
+  - namespace-sandboxes.yaml # the dedicated codify-sandboxes namespace
+  - serviceaccount-runner.yaml # runner SA in codify-sandboxes
+  - role.yaml # Role in codify-sandboxes (scoped Pod + Secret rights)
+  - rolebinding.yaml # cross-ns binding: server SA → runner-ns Role
+  - sandbox-config.yaml # server config (codify); points at runner ns
+# The harness-credentials Secret (sandbox.kubernetes.secret_name, default
+# codify-creds) is NOT checked in — create it out of band like the base
+# OIDC secret (see README.md "Apply"). Prefer sealed-secrets/external-secrets.
+
+# Use the server image variant that includes the kubernetes client extra
+# (built by CI with CODIFY_EXTRAS=kubernetes). The base image omits it, so a
+# managed launch there fails to import the client. Self-builds must keep
+# `kubernetes` in CODIFY_EXTRAS (see deploy/docker); point newName at such a
+# build here if you use one.
+images:
+  - name: ghcr.io/codify-ai/codify-server
+    newName: ghcr.io/codify-ai/codify-server-kubernetes
+
+patches:
+  - path: deployment-patch.yaml

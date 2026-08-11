@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codify-config
+data:
+  # Point the server at the sandbox config file mounted by the overlay.
+  CODIFY_CONFIG: "/data/server-config.yaml"
+  # Env var names the host forwards to runner subprocesses — required so
+  # the runner inherits the sandbox's proxy vars for egress.
+  CODIFY_RUNNER_ENV_PASSTHROUGH: "https_proxy,http_proxy,HTTPS_PROXY,HTTP_PROXY,NO_PROXY,no_proxy"

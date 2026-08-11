@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codify
+  labels:
+    app: codify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codify
+  template:
+    metadata:
+      labels:
+        app: codify
+    spec:
+      containers:
+        - name: codify
+          image: ghcr.io/codify-ai/codify-server:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: codify-config
+            - secretRef:
+                name: codify-secrets
+          volumeMounts:
+            - name: artifacts
+              mountPath: /data/artifacts
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim:
+            claimName: codify-artifacts
