@@ -4,7 +4,7 @@
 
 ### Multi-Harness, Auto-verified.
 
-**codify** fans every coding task out to multiple coding agents — Claude Code, Codex, and Pi by
+**Omnigent-Verified** fans every coding task out to multiple coding agents — Claude Code, Codex, and Pi by
 default — as parallel proposals in isolated git worktrees, ranks the resulting trajectories with an
 LLM verifier, and squash-merges the winner. **The final commit on your branch is the selected
 best-of-N proposal**, with its scores recorded in the commit message.
@@ -16,10 +16,30 @@ best-of-N proposal**, with its scores recorded in the commit message.
 
 ---
 
+## Examples
+
+1. Multi-harness scoring
+
+<p align="center">
+  <img src="examples/scoring.png" alt="Live verifier scoring of proposals" width="800">
+</p>
+
+2. Configuration
+
+<p align="center">
+  <img src="examples/configuration.png" alt="Best-of-N configuration in the web UI" width="800">
+</p>
+
+3. Parameters
+
+<p align="center">
+  <img src="examples/verification_scaling.png" alt="Verification scaling parameters" width="800">
+</p>
+
 ## Why best-of-N?
 
 A single agent's first answer is a coin flip: sometimes brilliant, sometimes subtly wrong, and the
-agent's own "done, tests pass!" is not evidence. codify changes the unit of work from *one
+agent's own "done, tests pass!" is not evidence. Omnigent-Verified changes the unit of work from *one
 attempt* to *one selection*:
 
 1. **Fan out.** Each enabled proposer harness runs the same task headlessly in its **own git
@@ -40,7 +60,7 @@ untested claims and empty diffs lose tournaments.
 ## Quick start
 
 ```bash
-git clone https://github.com/jackyk02/codify.git && cd codify
+git clone https://github.com/jackyk02/omnigent-verified.git && cd omnigent-verified
 uv sync --extra dev                      # or: pip install -e .
 
 export DEEPSEEK_API_KEY=sk-...           # proposals + verifier default to deepseek-v4-flash
@@ -50,7 +70,7 @@ Run it against any git repo:
 
 ```bash
 cd /path/to/your/repo
-codify best-of-n "fix the race in worker.py and add a regression test"
+omnigent-verified best-of-n "fix the race in worker.py and add a regression test"
 ```
 
 ```text
@@ -63,7 +83,7 @@ winner: codex-1 (score 0.507, 6 comparisons)
 merged as 231ac3447dd1
 ```
 
-Or run it as a session — `codify run` auto-starts the local server and launches the
+Or run it as a session — `omnigent-verified run` auto-starts the local server and launches the
 **Best-of-N** agent (the default mode, tagged *multi-agent auto-verify* in the web UI's session
 picker). Give it a coding task and it dispatches the same task to Claude Code, Codex, and Pi as
 **real child sessions** — open any of them in the UI's Subagents panel to watch that harness work
@@ -71,8 +91,8 @@ live (or take over), then switch between the three. When all proposals land, the
 them and only the winner is merged:
 
 ```bash
-codify run                          # session-native Best-of-N in the current repo
-codify server                       # API + web UI on http://localhost:6767
+omnigent-verified run                # session-native Best-of-N in the current repo
+omnigent-verified server             # API + web UI on http://localhost:6767
 ```
 
 Starting a new session with the Best-of-N agent opens the run view directly — the three
@@ -90,7 +110,7 @@ model.
 
 Everything about a run is configuration — edit it in the web UI under **Settings → Best-of-N
 Verifier**, over REST (`GET/PUT /v1/best-of-n/config`), or as the `best_of_n:` block in
-`~/.codify/config.yaml` (a project-local `.codify/config.yaml` overrides it per-repo):
+`~/.omnigent-verified/config.yaml` (a project-local `.omnigent-verified/config.yaml` overrides it per-repo):
 
 ```yaml
 best_of_n:
@@ -129,30 +149,13 @@ its sandbox inside a container that lacks user namespaces:
 ```
 
 **Verifier backends.** Any OpenAI-compatible endpoint that returns token-level logprobs works
-(vLLM, SGLang, OpenAI, DeepSeek). For DeepSeek's official API, codify transparently rewrites
+(vLLM, SGLang, OpenAI, DeepSeek). For DeepSeek's official API, Omnigent-Verified transparently rewrites
 the verifier's score-reading prefill calls to the beta chat-prefix-completion API so real score
 distributions come back instead of silent ties.
 
-## Examples
-
-<p align="center">
-  <img src="examples/configuration.png" alt="Best-of-N configuration in the web UI" width="800"><br>
-  <sub>Configuration</sub>
-</p>
-
-<p align="center">
-  <img src="examples/scoring.png" alt="Live verifier scoring of proposals" width="800"><br>
-  <sub>Scoring</sub>
-</p>
-
-<p align="center">
-  <img src="examples/verification_scaling.png" alt="Verification scaling across N proposals" width="800"><br>
-  <sub>Verification scaling</sub>
-</p>
-
 ## The meta-harness underneath
 
-codify is built on the Omnigent meta-harness, and everything it offered still works: one
+Omnigent-Verified is built on the Omnigent meta-harness, and everything it offered still works: one
 orchestration layer over Claude Code, Codex, Cursor, OpenCode, Goose, Qwen, Kimi, Hermes, Pi,
 Antigravity, and agents you write yourself — native TUIs or SDK harnesses, per-session policies and
 sandboxing, git-worktree isolation, a real-time web UI (terminal, browser, phone, desktop), and
@@ -160,7 +163,7 @@ YAML-defined custom agents (see [`docs/AGENT_YAML_SPEC.md`](docs/AGENT_YAML_SPEC
 [`examples/best_of_n`](examples/best_of_n) is the bundled default agent.
 
 ```
-codify/             the platform: CLI, server, runner, harnesses, Best-of-N engine
+omnigent_verified/  the platform: CLI, server, runner, harnesses, Best-of-N engine
 llm_verifier/       in-tree LLM-as-a-Verifier: fine-grained reward + pivot tournament (MIT)
 web/                React web UI (Settings -> Best-of-N Verifier, session picker, ...)
 examples/           bundled agents: best_of_n (default)
@@ -171,13 +174,13 @@ examples/           bundled agents: best_of_n (default)
 ```bash
 uv sync --extra all --extra dev
 uv run pytest                            # unit tests (e2e skipped by default)
-uv run codify server                # API on :6767
+uv run omnigent-verified server     # API on :6767
 cd web && pnpm install && pnpm run dev   # UI on :5173 (Node >= 22)
 ```
 
 ## Acknowledgements
 
-codify stands on two upstreams: the **Omnigent** meta-harness (Apache-2.0 — see
+Omnigent-Verified stands on two upstreams: the **Omnigent** meta-harness (Apache-2.0 — see
 [LICENSE](LICENSE) and [NOTICE](NOTICE)) and
 **[LLM-as-a-Verifier](https://github.com/llm-as-a-verifier/llm-as-a-verifier)** (MIT — vendored
 in-tree at [`llm_verifier/`](llm_verifier/) with its license and upstream README).
